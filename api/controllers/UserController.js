@@ -4,10 +4,14 @@
  * @description :: Server-side logic for managing Users
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
- 
-var bcrypt = require('bcrypt');
 
 module.exports = {
+
+  _config: {
+    actions: false,
+    shortcuts: false,
+    rest: false
+  },
   
   signup: function (req, res) {
 	User.createUser({
@@ -20,20 +24,6 @@ module.exports = {
     });
   },
   
-  login: function (req, res) {
-    User.findUser({
-      username: req.param('username')
-    }, async function (err, user) {
-      if (err) return res.negotiate(err);
-	  
-	  if(user && (await bcrypt.compare(req.param('password'), user.password))) {
-		return res.ok({token: jwTokenService.issueToken({id: user.id})});  
-	  }
-	  
-	  return res.badRequest({error:'Invalid username/password combination.'})
-    }); 
-  },
-  
   getLoggedUserInfo: function (req, res) {
 	User.findUser({
 	  id: req.id
@@ -42,6 +32,41 @@ module.exports = {
 	  if (!user) return res.notFound(err);
 	  
 	  return res.ok(User.removeSensitiveData(user));
+	});
+  },
+  
+  updatePassword: function (req, res) {
+    User.updatePassword({
+	  id: req.id,
+	  password: req.param('password')
+	}, function (err, user) {
+	  if (err) return res.negotiate(err);
+	  
+	  return res.ok({success: "Password changed successfuly."});
+	});
+  },
+  
+  likeUser: function (req, res) {
+	if(req.id == req.param('id')) return res.badRequest({error: "You can't like yourself!"});
+	
+    Like.likeUser({
+	  from: req.id,
+	  to: req.param('id')
+	}, function (err, like) {
+	  if (err) return res.negotiate(err);
+	  
+	  return res.ok({success: "User liked successfully."});
+	});
+  },
+  
+  unlikeUser: function (req, res) {
+    Like.unlikeUser({
+	  from: req.id,
+	  to: req.param('id')
+	}, function (err, like) {
+	  if (err) return res.negotiate(err);
+	  
+	  return res.ok({success: "User unliked successfully."});
 	});
   }
 };

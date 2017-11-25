@@ -23,6 +23,9 @@
 module.exports.routes = {
 
   'post /signup': 'UserController.signup',
-  'post /login': 'UserController.login',
-  'get /me': 'UserController.getLoggedUserInfo'
+  'post /login': 'LoginController.login',
+  'get /me': 'UserController.getLoggedUserInfo',
+  'put /me/update-password': 'UserController.updatePassword',
+  'post /user/:id/like': 'UserController.likeUser',
+  'delete /user/:id/unlike': 'UserController.unlikeUser'
 };

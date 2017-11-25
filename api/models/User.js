@@ -25,29 +25,49 @@ module.exports = {
   },
   
   beforeCreate: async function (inputs, cb) {
-    try {
-      inputs.password = await bcrypt.hash(inputs.password, saltRounds);
-      cb();
-	} catch (err) {
-	  return cb(err);
+	inputs.password  = await this.encryptPassword(inputs.password);
+	if(inputs.password instanceof Error) {
+	  cb(password);
 	}
+    cb();
   },
   
   createUser: function (inputs, cb) {
     User.create({
       username: inputs.username,
       password: inputs.password
-    })
-    .exec(cb);
+    }).exec(cb);
   },
   
   findUser: function (inputs, cb) {
     User.findOne(inputs).exec(cb);
   },
   
+  updatePassword: async function (inputs, cb) {
+    inputs.password = await this.encryptPassword(inputs.password);
+	
+	User.update({
+	  id: inputs.id
+	}, {
+	  password: inputs.password
+	}).exec(cb);
+  },
+  
   removeSensitiveData : function (user) {
-	  delete user.password
-	  return user;
+	delete user.password
+	return user;
+  },
+  
+  encryptPassword: function (password) {
+	try {
+      return bcrypt.hash(password, saltRounds);
+	} catch (err) {
+	  return err;
+	}
+  },
+  
+  comparePassword: function (password, hash) {
+    return bcrypt.compare(password, hash);
   }
 };
 

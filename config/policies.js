@@ -18,7 +18,13 @@
 
 module.exports.policies = {
 
+  '*': ['jwtAuth'],
+  
   UserController: {
-    getLoggedUserInfo: 'jwtAuth'
+    signup: true
+  },
+  
+  LoginController: {
+    login: true
   }
 };
