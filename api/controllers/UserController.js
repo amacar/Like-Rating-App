@@ -6,26 +6,43 @@
  */
  
 var bcrypt = require('bcrypt');
-const saltRounds = 10;
 
 module.exports = {
   
-  signup: async function (req, res) {
-	try {
-      const hash = await bcrypt.hash(req.param('password'), saltRounds);
+  signup: function (req, res) {
+	User.createUser({
+      username: req.param('username'),
+      password: req.param('password')
+    }, function (err, user) {
+      if (err) return res.negotiate(err);
+
+      return res.ok({success:'Signup successful!'});
+    });
+  },
+  
+  login: function (req, res) {
+    User.findUser({
+      username: req.param('username')
+    }, async function (err, user) {
+      if (err) return res.negotiate(err);
 	  
-	  User.signup({
-        username: req.param('username'),
-        password: hash
-      }, function (err, user) {
-
-        if (err) return res.negotiate(err);
-
-        return res.ok('Signup successful!');
-      });
-	} catch (err) {
-	  return res.serverError(err);
-	}
+	  if(user && (await bcrypt.compare(req.param('password'), user.password))) {
+		return res.ok({token: jwTokenService.issueToken({id: user.id})});  
+	  }
+	  
+	  return res.badRequest({error:'Invalid username/password combination.'})
+    }); 
+  },
+  
+  getLoggedUserInfo: function (req, res) {
+	User.findUser({
+	  id: req.id
+	}, function (err, user) {
+	  if (err) return res.negotiate(err);
+	  if (!user) return res.notFound(err);
+	  
+	  return res.ok(User.removeSensitiveData(user));
+	});
   }
 };
 

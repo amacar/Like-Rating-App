@@ -22,5 +22,7 @@
 
 module.exports.routes = {
 
-  'post /signup': 'UserController.signup'
+  'post /signup': 'UserController.signup',
+  'post /login': 'UserController.login',
+  'get /me': 'UserController.getLoggedUserInfo'
 };
