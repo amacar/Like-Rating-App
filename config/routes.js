@@ -27,5 +27,7 @@ module.exports.routes = {
   'get /me': 'UserController.getLoggedUserInfo',
   'put /me/update-password': 'UserController.updatePassword',
   'post /user/:id/like': 'UserController.likeUser',
-  'delete /user/:id/unlike': 'UserController.unlikeUser'
+  'delete /user/:id/unlike': 'UserController.unlikeUser',
+  'get /user/:id': 'UserController.getUserLikes',
+  'get /most-liked': 'UserController.getMostLiked'
 };

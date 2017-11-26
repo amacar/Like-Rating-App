@@ -21,7 +21,9 @@ module.exports.policies = {
   '*': ['jwtAuth'],
   
   UserController: {
-    signup: true
+    signup: true,
+    getUserLikes: true,
+    getMostLiked: true
   },
   
   LoginController: {

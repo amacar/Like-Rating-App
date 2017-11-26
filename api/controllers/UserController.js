@@ -49,14 +49,22 @@ module.exports = {
   likeUser: function (req, res) {
 	if(req.id == req.param('id')) return res.badRequest({error: "You can't like yourself!"});
 	
-    Like.likeUser({
-	  from: req.id,
-	  to: req.param('id')
-	}, function (err, like) {
+	User.findUser({
+	  id: req.param('id')
+	}, function (err, user) {
 	  if (err) return res.negotiate(err);
+	  if (!user) return res.notFound(err);
+    
+	  Like.likeUser({
+	    from: req.id,
+	    to: req.param('id'),
+	    toUsername: user.username
+	  }, function (err, like) {
+	    if (err) return res.negotiate(err);
 	  
-	  return res.ok({success: "User liked successfully."});
-	});
+	    return res.ok({success: "User liked successfully."});
+	  });
+	}); 
   },
   
   unlikeUser: function (req, res) {
@@ -67,6 +75,29 @@ module.exports = {
 	  if (err) return res.negotiate(err);
 	  
 	  return res.ok({success: "User unliked successfully."});
+	});
+  },
+  
+  getUserLikes: function (req, res) {
+    User.findUser({
+	  id: req.param('id')
+	}, function (err, user) {
+	  if (err) return res.negotiate(err);
+	  if (!user) return res.notFound(err);
+	  
+	  Like.count({to: req.param('id')}).exec(function (err, count) {
+		if (err) return res.negotiate(err);
+		
+	    return res.ok({username: user.username, count: count}); 
+	  });
+	}); 
+  },
+  
+  getMostLiked: function (req, res) {
+    Like.getMostLiked(function(err, results) {
+	  if (err) return res.negotiate(err);
+	  
+	  return res.ok(results);
 	});
   }
 };
