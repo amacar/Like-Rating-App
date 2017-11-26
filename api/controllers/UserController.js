@@ -14,9 +14,15 @@ module.exports = {
   },
   
   signup: function (req, res) {
+    var username = req.param('username'),
+    password = req.param('password');
+    if(!username || !password) {
+      return res.badRequest({error:'Required parameters missing.'});
+    }
+	
 	User.createUser({
-      username: req.param('username'),
-      password: req.param('password')
+      username: username,
+      password: password
     }, function (err, user) {
       if (err) return res.negotiate(err);
 
@@ -24,7 +30,7 @@ module.exports = {
     });
   },
   
-  getLoggedUserInfo: function (req, res) {
+  getLoggedUserInfo: function (req, res) {	
 	User.findUser({
 	  id: req.id
 	}, function (err, user) {
@@ -36,28 +42,33 @@ module.exports = {
   },
   
   updatePassword: function (req, res) {
+    var password = req.param('password');
+    if(!password) {
+      return res.badRequest({error:'Required parameters missing.'});
+    }
+	
     User.updatePassword({
 	  id: req.id,
-	  password: req.param('password')
+	  password: password
 	}, function (err, user) {
 	  if (err) return res.negotiate(err);
 	  
-	  return res.ok({success: "Password changed successfuly."});
+	  return res.ok({success: "Password changed successfully."});
 	});
   },
   
   likeUser: function (req, res) {
-	if(req.id == req.param('id')) return res.badRequest({error: "You can't like yourself!"});
+	if(req.id == id) return res.badRequest({error: "You can't like yourself!"});
 	
 	User.findUser({
-	  id: req.param('id')
+	  id: id
 	}, function (err, user) {
 	  if (err) return res.negotiate(err);
-	  if (!user) return res.notFound(err);
+	  if (!user) return res.notFound({error: "User does not exists."});
     
 	  Like.likeUser({
 	    from: req.id,
-	    to: req.param('id'),
+	    to: id,
 	    toUsername: user.username
 	  }, function (err, like) {
 	    if (err) return res.negotiate(err);
@@ -83,9 +94,9 @@ module.exports = {
 	  id: req.param('id')
 	}, function (err, user) {
 	  if (err) return res.negotiate(err);
-	  if (!user) return res.notFound(err);
+	  if (!user) return res.notFound({error: "User does not exists."});
 	  
-	  Like.count({to: req.param('id')}).exec(function (err, count) {
+	  Like.countLikes({to: req.param('id')}, function (err, count) {
 		if (err) return res.negotiate(err);
 		
 	    return res.ok({username: user.username, count: count}); 

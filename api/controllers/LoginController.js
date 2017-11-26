@@ -14,12 +14,18 @@ module.exports = {
   },
     
   login: function (req, res) {
+    var username = req.param('username'),
+    password = req.param('password');
+    if(!username || !password) {
+      return res.badRequest({error:'Required parameters missing.'});
+    }
+	  
     User.findUser({
-      username: req.param('username')
+      username: username
     }, async function (err, user) {
       if (err) return res.negotiate(err);
 	  
-	  if(user && (await User.comparePassword(req.param('password'), user.password))) {
+	  if(user && (await User.comparePassword(password, user.password))) {
 		return res.ok({token: jwTokenService.issueToken({id: user.id})});  
 	  }
 	  

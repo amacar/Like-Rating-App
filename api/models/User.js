@@ -45,7 +45,10 @@ module.exports = {
   
   updatePassword: async function (inputs, cb) {
     inputs.password = await this.encryptPassword(inputs.password);
-	
+	if(inputs.password instanceof Error) {
+	  cb(password);
+	}
+
 	User.update({
 	  id: inputs.id
 	}, {

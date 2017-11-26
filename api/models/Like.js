@@ -33,6 +33,10 @@ module.exports = {
     Like.destroy(inputs).exec(cb);
   },
   
+  countLikes: function (inputs, cb) {
+	Like.count(inputs).exec(cb);
+  },
+  
   getMostLiked: function (cb) {
     Like.native(function(err, collection) {
 	  if(err) return cb(err);
