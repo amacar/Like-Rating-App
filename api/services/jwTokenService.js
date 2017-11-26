@@ -1,5 +1,5 @@
 var jwt = require('jsonwebtoken');
-var tokenSecret = 'topsecret';
+var tokenSecret = 'topsecret'; //move to config
 
 module.exports.issueToken = function(payload, options) {
   return token = jwt.sign(payload, tokenSecret, {expiresIn: '6h'});
